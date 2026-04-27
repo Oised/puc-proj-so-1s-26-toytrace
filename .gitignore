@@ -1,0 +1,10 @@
+# Executáveis compilados (gerados a partir de .c)
+*.out
+*.exe
+*.o
+a.out
+
+# Binários (gerados a partir de .c)
+tests/targets/*
+!tests/targets/*.c
+toytrace
