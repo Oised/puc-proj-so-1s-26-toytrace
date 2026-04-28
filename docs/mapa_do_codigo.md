@@ -14,7 +14,7 @@ O runtime chama o callback na função `trace_program` no final do arquivo, depo
 
 ## Arquivos que o grupo deve modificar:
 
-O grupo deve modificar somente o arquivo `trace_runtime.c`, os outros arquivos já estão prontos.
+O grupo deve modificar o arquivo `trace_runtime.c`, e os arquivos `formatter.c` e `pairer.c`, os outros arquivos já estão prontos.
 
 ## TODO que aparece primeiro ao executar o scaffold:
 
