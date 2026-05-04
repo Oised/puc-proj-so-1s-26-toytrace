@@ -109,9 +109,11 @@ static int configure_trace_options(pid_t child)
      *
      * Configure PTRACE_O_TRACESYSGOOD com PTRACE_SETOPTIONS.
      * Isso ajuda a diferenciar paradas de syscall de outros sinais.
-     */
-    fprintf(stderr, "erro: TODO Semana 3: implementar configure_trace_options()\n");
-    return -1;
+    */
+
+    ptrace(PTRACE_SETOPTIONS, child, NULL, PTRACE_O_TRACESYSGOOD);
+    return 0;
+    
 }
 
 static int resume_until_next_syscall(pid_t child, int signal_to_deliver)
@@ -123,9 +125,11 @@ static int resume_until_next_syscall(pid_t child, int signal_to_deliver)
      * proxima entrada ou saida de syscall.
      *
      * signal_to_deliver deve ser repassado como quarto argumento do ptrace.
-     */
-    fprintf(stderr, "erro: TODO Semana 3: implementar resume_until_next_syscall()\n");
-    return -1;
+    */
+
+    ptrace(PTRACE_SYSCALL, child, NULL, signal_to_deliver);
+    return 0;
+
 }
 
 static int wait_for_syscall_stop(pid_t child, int *status)
@@ -145,9 +149,34 @@ static int wait_for_syscall_stop(pid_t child, int *status)
      * - WIFSTOPPED indica que o processo parou.
      * - com PTRACE_O_TRACESYSGOOD, syscall-stops aparecem com bit 0x80.
      * - paradas SIGTRAP comuns nao devem ser entregues de volta ao filho.
-     */
-    fprintf(stderr, "erro: TODO Semana 3: implementar wait_for_syscall_stop()\n");
-    return -1;
+    */
+
+    if (waitpid(child,status,0)< 0) {
+        perror("Erro, waitpid não funcionou!\n"); 
+        return -1;
+    }
+    else {
+        if (WIFEXITED(*status)){
+            return 0;
+        }
+   
+        if (WIFSIGNALED(*status)) {
+            return 0;
+        }
+
+        if (WIFSTOPPED(*status)) {
+            if(WSTOPSIG(*status) % 0x80) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
+        }
+        else {
+            return -1;
+        }
+    }
+   
 }
 
 int trace_program(char *const argv[],
