@@ -151,39 +151,31 @@ static int wait_for_syscall_stop(pid_t child, int *status)
      * - paradas SIGTRAP comuns nao devem ser entregues de volta ao filho.
     */
 
-    int status;
-
-    if (waitpid(child,&status,0)< 0) 
-        {
-            perror("Erro, waitpid nào funcionou!\n"); 
-            return -1;
+    if (waitpid(child,status,0)< 0) {
+        perror("Erro, waitpid não funcionou!\n"); 
+        return -1;
+    }
+    else {
+        if (WIFEXITED(*status)){
+            return 0;
         }
-        else 
-        {
-           
-             if (WIFEXITED(status))
-            {
+   
+        if (WIFSIGNALED(*status)) {
             return 0;
-            }
-           
-            if (WIFSIGNALED(status)) 
-            {
-            return 0;
-            }
+        }
 
-            if (wifstopped(status)) 
-            {
-                if(WSTOPSIG(status) % 0x80){
-                    return 1;
-                }
-                else {
-                    return -1;
-                }
+        if (WIFSTOPPED(*status)) {
+            if(WSTOPSIG(*status) % 0x80) {
+                return 1;
             }
-            else{
+            else {
                 return -1;
             }
         }
+        else {
+            return -1;
+        }
+    }
    
 }
 
