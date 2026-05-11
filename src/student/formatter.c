@@ -28,11 +28,26 @@ void student_debug_raw_event(const struct syscall_event *ev,
      *
      * A pergunta importante da Semana 4 e:
      * por que a mesma syscall aparece duas vezes?
-     */
+    */
+
+    /*
     snprintf(buf, bufsz, "pid=%d %s %s",
              ev->pid,
              syscall_name(ev->syscall_no),
              ev->entering ? "entrada" : "saida");
+    */
+
+    printf("\n---DEBUG---\n|\n");
+    printf("| Nome da syscall: %ld\n",ev->syscall_no);
+    printf("| Entreda(0) ou saída(1): %d\n",ev->entering);
+    printf("| Pid: %d\n",ev->pid);
+    if (ev->entering){
+        printf("| Eventos de entrada, argumentos: %lu, %lu, %lu, %lu, %lu, %lu\n", ev->args[0], ev->args[1], ev->args[2], ev->args[3], ev->args[4], ev->args[5]);
+    }
+    else{
+        printf("| Valor de retorno: %ld\n", ev->ret);
+    }
+    printf("|\n-----------\n\n");
 }
 
 void student_format_event(const struct syscall_event *ev,
@@ -53,7 +68,7 @@ void student_format_event(const struct syscall_event *ev,
      *
      * Para caminhos do processo monitorado, use read_child_string().
      * Se a leitura falhar, imprima "<ilegivel>".
-     */
+    */
     snprintf(buf, bufsz, "%s(%#lx, %#lx, %#lx, %#lx, %#lx, %#lx) = %ld",
              syscall_name(ev->syscall_no),
              ev->args[0],
