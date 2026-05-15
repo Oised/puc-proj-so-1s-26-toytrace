@@ -1,6 +1,7 @@
 #include "trace_runtime.h"
 
 #include <errno.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
@@ -32,6 +33,17 @@ static void fill_event_from_regs(pid_t pid,
     memset(ev, 0, sizeof(*ev));
     ev->pid = pid;
     ev->entering = entering;
+    if(ev->entering==0)
+    {
+      ev->ret = regs->rax; 
+    }
+    ev->syscall_no = regs->orig_rax;
+    ev->args[0] = regs->rdi;
+    ev->args[1] = regs->rsi;
+    ev->args[2] = regs->rdx;
+    ev->args[3] = regs->r10;
+    ev->args[4] = regs->r8;
+    ev->args[5] = regs->r9;
 }
 
 static pid_t launch_tracee(char *const argv[])
@@ -61,11 +73,22 @@ static pid_t launch_tracee(char *const argv[])
     }
 
     // filho
-    if (cpid == 0) {
-        ptrace(PTRACE_TRACEME, 0, NULL, NULL);
+     if (cpid == 0) {
+
+        if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) < 0) {
+            perror("ptrace");
+            exit(EXIT_FAILURE);
+        }
+
         raise(SIGSTOP);
+
         execvp(argv[0], argv);
+
+        // Só chega aqui se execvp falhar
+        perror("execvp");
+        exit(EXIT_FAILURE);
     }
+
 
     // pai
     else {
@@ -165,11 +188,11 @@ static int wait_for_syscall_stop(pid_t child, int *status)
         }
 
         if (WIFSTOPPED(*status)) {
-            if(WSTOPSIG(*status) % 0x80) {
+            if(WSTOPSIG(*status) & 0x80) {
                 return 1;
             }
             else {
-                return -1;
+                return 2;
             }
         }
         else {
@@ -227,6 +250,13 @@ int trace_program(char *const argv[],
             }
             return 0;
         }
+        if (stop_kind == 2) {
+            if (resume_until_next_syscall(child, 0) < 0) {
+                return -1;
+            }
+
+            continue;
+        }
 
         /*
          * TODO Semana 4:
@@ -234,7 +264,7 @@ int trace_program(char *const argv[],
          * Use PTRACE_GETREGS para preencher regs.
          * Depois chame fill_event_from_regs() e observer().
          */
-        memset(&regs, 0, sizeof(regs));
+        ptrace(PTRACE_GETREGS, child, NULL, &regs);
         fill_event_from_regs(child, entering, &regs, &ev);
         if (observer != NULL) {
             observer(&ev, userdata);
