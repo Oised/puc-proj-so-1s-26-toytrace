@@ -28,5 +28,30 @@ int student_pair_syscall(struct syscall_pairer *pairer,
      *   0 se ainda nao ha syscall completa
      *  -1 se a sequencia de eventos parece invalida
      */
+
+if(ev->entering == 1){ //entrada
+
+pairer->entry = *ev; //guarda os dados da struct ev do runtime e guarda na struct entry (q tem os mesmos campos de ev)
+pairer->has_entry = 1; //avisa que a entrada esta salva
+
+}else{
+
+    if(ev->entering == 0){
+        if(pairer->has_entry == 1){
+
+        out->ret = ev->ret;
+        pairer->has_entry = 0; //avisa que é uma saída
+
+        }
+    }
+}
+
+
+
+
+
+
+
+
     return 0;
 }
