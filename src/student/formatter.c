@@ -85,7 +85,9 @@ void student_format_event(const struct syscall_event *ev,
      *
      * Para caminhos do processo monitorado, use read_child_string().
      * Se a leitura falhar, imprima "<ilegivel>".
-     */
+    */
+
+    // if não é read, write, openat, execve ou exit_group ->
     snprintf(buf, bufsz, "%s(%#lx, %#lx, %#lx, %#lx, %#lx, %#lx) = %ld",
              syscall_name(ev->syscall_no),
              ev->args[0],
@@ -95,4 +97,15 @@ void student_format_event(const struct syscall_event *ev,
              ev->args[4],
              ev->args[5],
              ev->ret);
+
+    // if read ->
+
+    // if write ->
+
+    // if openat ->
+
+    // if execve ->
+
+    // if exit_group ->
+
 }
