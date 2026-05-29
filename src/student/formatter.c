@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 
+#include <string.h>
+
 void student_debug_raw_event(const struct syscall_event *ev,
                              char *buf,
                              size_t bufsz)
@@ -88,52 +90,42 @@ void student_format_event(const struct syscall_event *ev,
     */
 
     // if read ->
-    if (ev->syscall_no == SYS_read) {
-        snprintf(buf, bufsz, "read(%ld, %p, %lu) = %ld",
-                ev->args[0],
-                ev->args[1],
-                ev->args[2],
-                ev->ret
-                );
+    if (strcmp(syscall_name(ev->syscall_no), "read") == 0) {
+        snprintf(buf, bufsz, "read(%#lx, %#lx, %#lx) = %ld",
+                 ev->args[0], ev->args[1], ev->args[2], ev->ret);
         return;
     }
 
     // if write ->
-    if (ev->syscall_no == SYS_write) {
-        snprintf(buf, bufsz, "write(%ld, %p, %lu) = %ld",
-                 ev->args[0],
-                 ev->args[1],
-                 ev->args[2],
-                 ev->ret
-                );
+    if (strcmp(syscall_name(ev->syscall_no), "write") == 0) {
+        snprintf(buf, bufsz, "write(%#lx, %#lx, %#lx) = %ld",
+                 ev->args[0], ev->args[1], ev->args[2], ev->ret);
         return;
     }
 
-// if openat ->
- if (ev->syscall_no == SYS_openat) {
-        if (read_child_string(ev->pid, ev->args[1], buf, bufsz) < 0)
-            snprintf(p buf, bufsz, "<ilegivel>");
-        snprintf(buf, bufsz, "openat(%ld, \"%s\", %#lx, %#lx) = %ld",
-                ev->args[0],
-                buf,
-                ev->args[2],
-                ev->args[3],
-                ev->ret
-                );
+    // if openat ->
+    if (strcmp(syscall_name(ev->syscall_no), "openat") == 0) {
+        char path[256];
+        if (read_child_string(ev->pid, ev->args[1], path, sizeof(path)) < 0)
+            strcpy(path, "<ilegivel>");
+        snprintf(buf, bufsz, "openat(%#lx, \"%s\", %#lx, %#lx) = %ld",
+                 ev->args[0], path, ev->args[2], ev->args[3], ev->ret);
         return;
     }
 
-  // if execve ->
-    if (ev->syscall_no == SYS_execve) {
-        if (read_child_string(ev->pid, ev->args[0],  buf, bufsz) < 0)
-            snprintf(buf, bufsz, "<ilegivel>");
-        snprintf(buf, bufsz, "execve(\"%s\", ...) = %ld",buf, ev->ret);
+    // if execve ->
+    if (strcmp(syscall_name(ev->syscall_no), "execve") == 0) {
+        char path[256];
+        if (read_child_string(ev->pid, ev->args[0], path, sizeof(path)) < 0)
+            strcpy(path, "<ilegivel>");
+        snprintf(buf, bufsz, "execve(\"%s\", %#lx, %#lx) = %ld",
+                 path, ev->args[1], ev->args[2], ev->ret);
         return;
     }
 
-// if exit_group ->
-    if (ev->syscall_no == SYS_exit_group) {
-        snprintf(buf, bufsz, "exit_group(%ld) = %ld", ev->args[0], ev->ret);
+    // if exit_group ->
+    if (strcmp(syscall_name(ev->syscall_no), "exit_group") == 0) {
+        snprintf(buf, bufsz, "exit_group(%#lx) = %ld", ev->args[0], ev->ret);
         return;
     }
 
