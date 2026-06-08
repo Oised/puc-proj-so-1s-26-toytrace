@@ -36,14 +36,13 @@ int student_pair_syscall(struct syscall_pairer *pairer,
     }
     if(pairer->has_entry){
         pairer->entry.ret = ev->ret;
+        pairer->entry.entering = ev->entering;
         pairer->has_entry = 0; //prepara para a proxima syscall
+        *out = pairer->entry;
+        return 1;
     }
     else{
         perror("DEU RUIM NO PAIRER\n");
         return -1;
-    }
-    if(!pairer->has_entry){
-        *out = pairer->entry;
-        return 1;
     }
 }

@@ -7,4 +7,6 @@ a.out
 # Binários (gerados a partir de .c)
 tests/targets/*
 !tests/targets/*.c
-toytrace
+toytrace.venv/
+tests/__pycache__/
+tests/unit/test_student
