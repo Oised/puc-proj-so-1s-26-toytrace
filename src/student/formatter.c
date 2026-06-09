@@ -2,6 +2,8 @@
 
 #include "syscall_names.h"
 
+#include "trace_helpers.h"
+
 #include <stdio.h>
 
 #include <string.h>
@@ -38,14 +40,13 @@ void student_debug_raw_event(const struct syscall_event *ev,
             "\n---DEBUG---\n"
             "|\n"
             "| Nome da syscall: %ld\n"
-            "| Entrada: %d\n"
+            "| Estado: entrada\n"
             "| Pid: %d\n"
             "| Eventos de entrada, argumentos: "
             "%lu, %lu, %lu, %lu, %lu, %lu\n"
             "|\n"
             "-----------\n",
             ev->syscall_no,
-            ev->entering,
             ev->pid,
             ev->args[0],
             ev->args[1],
@@ -59,13 +60,12 @@ void student_debug_raw_event(const struct syscall_event *ev,
             "\n---DEBUG---\n"
             "|\n"
             "| Nome da syscall: %ld\n"
-            "| Entrada: %d\n"
+            "| Estado: saida\n"
             "| Pid: %d\n"
             "| Valor de retorno: %ld\n"
             "|\n"
             "-----------\n",
             ev->syscall_no,
-            ev->entering,
             ev->pid,
             ev->ret);
     }
